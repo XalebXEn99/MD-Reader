@@ -278,7 +278,7 @@
       selectedText + "\n---\n\nThe user's question: " + question +
       "\n\nAnswer concisely and helpfully.";
 
-    var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
+    var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + apiKey;
     fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
