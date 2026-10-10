@@ -1,6 +1,29 @@
 (function () {
   "use strict";
 
+  // ===== Mermaid config =====
+  var mermaidThemes = {
+    "default": "default",
+    "scifi": "dark",
+    "pixel": "dark",
+    "office": "base"
+  };
+  var currentMermaidTheme = "default";
+  mermaid.initialize({ startOnLoad: false, theme: currentMermaidTheme, securityLevel: "loose" });
+
+  function renderMermaidDiagrams() {
+    var blocks = markdownOutput.querySelectorAll("code.language-mermaid");
+    if (blocks.length === 0) return;
+    blocks.forEach(function (block, i) {
+      var pre = block.parentNode;
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = block.textContent;
+      pre.replaceWith(div);
+    });
+    mermaid.run({ nodes: markdownOutput.querySelectorAll(".mermaid") }).catch(function () {});
+  }
+
   marked.setOptions({
     highlight: function (code, lang) {
       if (lang && hljs.getLanguage(lang)) {
@@ -125,6 +148,7 @@
     markdownOutput.innerHTML = f.html;
     uploadScreen.classList.add("hidden");
     viewerScreen.classList.remove("hidden");
+    setTimeout(renderMermaidDiagrams, 50);
     addTabBtn.classList.remove("hidden");
   }
 
@@ -155,6 +179,12 @@
     themeOptions.forEach(function (btn) {
       btn.classList.toggle("active", btn.getAttribute("data-theme") === theme);
     });
+    var mTheme = mermaidThemes[theme] || "default";
+    if (mTheme !== currentMermaidTheme) {
+      currentMermaidTheme = mTheme;
+      mermaid.initialize({ startOnLoad: false, theme: currentMermaidTheme, securityLevel: "loose" });
+      if (getActiveFile()) { markdownOutput.innerHTML = getActiveFile().html; renderMermaidDiagrams(); }
+    }
     try { localStorage.setItem("md-reader-theme", theme); } catch (e) {}
   }
 
