@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MD Reader</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.0/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
+</head>
+<body>
+  <div class="app-wrapper">
+
+    <!-- Upload Screen -->
+    <div id="upload-screen" class="upload-screen">
+      <div class="logo">MD Reader</div>
+      <p class="subtitle">Upload a Markdown file to view it rendered</p>
+
+      <div id="drop-zone" class="drop-zone">
+        <div class="drop-zone-inner">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <p class="drop-text">Drag &amp; drop a .md file here</p>
+          <p class="drop-or">or</p>
+          <label class="btn-pick" for="file-input">Browse files</label>
+          <input type="file" id="file-input" accept=".md,.markdown,.mdown,.mkd" hidden />
+        </div>
+      </div>
+    </div>
+
+    <!-- Viewer Screen -->
+    <div id="viewer-screen" class="viewer-screen hidden">
+      <header class="viewer-header">
+        <button id="back-btn" class="btn-back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Back
+        </button>
+        <span id="file-name" class="file-name"></span>
+      </header>
+      <article id="markdown-output" class="markdown-body"></article>
+    </div>
+
+  </div>
+
+  <script>
+    marked.setOptions({
+      highlight(code, lang) {
+        if (lang && hljs.getLanguage(lang)) {
+          return hljs.highlight(code, { language: lang }).value;
+        }
+        return hljs.highlightAuto(code).value;
+      },
+      breaks: false,
+      gfm: true,
+    });
+
+    var uploadScreen = document.getElementById("upload-screen");
+    var viewerScreen = document.getElementById("viewer-screen");
+    var dropZone = document.getElementById("drop-zone");
+    var fileInput = document.getElementById("file-input");
+    var output = document.getElementById("markdown-output");
+    var fileNameEl = document.getElementById("file-name");
+    var backBtn = document.getElementById("back-btn");
+
+    function handleFile(file) {
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var raw = e.target.result;
+        var html = marked.parse(raw);
+        output.innerHTML = html;
+        fileNameEl.textContent = file.name;
+        uploadScreen.classList.add("hidden");
+        viewerScreen.classList.remove("hidden");
+      };
+      reader.readAsText(file);
+    }
+
+    fileInput.addEventListener("change", function () {
+      handleFile(this.files[0]);
+      this.value = "";
+    });
+
+    dropZone.addEventListener("dragover", function (e) {
+      e.preventDefault();
+      dropZone.classList.add("drag-over");
+    });
+    dropZone.addEventListener("dragleave", function () {
+      dropZone.classList.remove("drag-over");
+    });
+    dropZone.addEventListener("drop", function (e) {
+      e.preventDefault();
+      dropZone.classList.remove("drag-over");
+      var file = e.dataTransfer.files[0];
+      if (file && file.name.match(/\.(md|markdown|mdown|mkd)$/i)) {
+        handleFile(file);
+      }
+    });
+
+    backBtn.addEventListener("click", function () {
+      viewerScreen.classList.add("hidden");
+      uploadScreen.classList.remove("hidden");
+      output.innerHTML = "";
+    });
+  </script>
+</body>
+</html>
