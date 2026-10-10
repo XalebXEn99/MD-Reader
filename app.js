@@ -125,11 +125,13 @@
     markdownOutput.innerHTML = f.html;
     uploadScreen.classList.add("hidden");
     viewerScreen.classList.remove("hidden");
+    addTabBtn.classList.remove("hidden");
   }
 
   function showUpload() {
     uploadScreen.classList.remove("hidden");
     viewerScreen.classList.add("hidden");
+    addTabBtn.classList.add("hidden");
     markdownOutput.innerHTML = "";
   }
 
